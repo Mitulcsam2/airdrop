@@ -1,173 +1,199 @@
+<!-- Updated HTML with variable names matching the C++ code -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Airdrop Clone – C++ Implementation</title>
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Airdrop Application - Project Summary</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            background: #0d1117;
-            color: #e6edf3;
             margin: 0;
             padding: 0;
+            background: #f7f7f7;
+            line-height: 1.6;
         }
         header {
-            background: #161b22;
+            background: #2c3e50;
+            color: white;
             padding: 20px;
             text-align: center;
-            font-size: 28px;
-            font-weight: bold;
-            color: #58a6ff;
         }
         .container {
+            width: 90%;
             max-width: 900px;
-            margin: auto;
+            margin: 20px auto;
+            background: white;
             padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
         }
         h2 {
-            color: #58a6ff;
-            border-bottom: 1px solid #30363d;
-            padding-bottom: 5px;
-        }
-        .code {
-            background: #161b22;
-            border: 1px solid #30363d;
-            padding: 15px;
-            border-radius: 8px;
-            font-family: Consolas, monospace;
-            white-space: pre-wrap;
-            overflow-x: auto;
+            color: #2c3e50;
         }
         .section {
-            margin-bottom: 40px;
+            margin-bottom: 25px;
         }
         footer {
             text-align: center;
-            padding: 20px;
-            color: #8b949e;
-            margin-top: 40px;
-            border-top: 1px solid #30363d;
+            padding: 15px;
+            background: #2c3e50;
+            color: white;
+            margin-top: 30px;
         }
     </style>
 </head>
-
 <body>
-<header>Airdrop Clone – C++ LAN File Sharing</header>
+    <header>
+        <h1>Airdrop-Style File Sharing Application</h1>
+        <p>Network Programming Project Summary</p>
+    </header>
 
-<div class="container">
+    <div class="container">
 
-    <div class="section">
-        <h2>Overview</h2>
-        <p>
-            This project is a C++-based AirDrop clone that discovers peers over LAN using 
-            <strong>UDP broadcasts</strong> and transfers files between devices using 
-            <strong>TCP sockets</strong>. The system is fully multithreaded and works without any server —
-            all communication is peer-to-peer.
-        </p>
-    </div>
+        <div class="section">
+            <h2>Project Overview</h2>
+            <p>This project implements an Airdrop-like file-sharing application using C++. It automatically discovers peers connected to the same network using UDP broadcasting and enables peer-to-peer file transfer using TCP. The application utilizes multithreading to handle continuous peer discovery, file transfers, and user interactions simultaneously.</p>
+        </div>
 
-    <div class="section">
-        <h2>✨ Features</h2>
-        <ul>
-            <li>Automatic peer discovery using UDP broadcasts</li>
-            <li>Real-time online user list</li>
-            <li>Direct peer-to-peer TCP file transfer</li>
-            <li>Chunked transmission (5000 bytes each)</li>
-            <li>Multi-threaded architecture</li>
-            <li>Terminal-based user interface</li>
-        </ul>
-    </div>
+        <div class="section">
+            <h2>Features</h2>
+            <ul>
+                <li>Automatic peer discovery using UDP broadcast.</li>
+                <li>Reliable peer-to-peer file transfer via TCP.</li>
+                <li>Multithreaded architecture for smooth operation.</li>
+                <li>Real-time peer list updates.</li>
+                <li>Simple command-line interface for sending and receiving files.</li>
+            </ul>
+        </div>
 
-    <div class="section">
-        <h2>🧠 Architecture</h2>
-        <p>The program runs four key threads:</p>
+        <div class="section">
+            <h2>System Design</h2>
+            <p>The project uses four major threads:</p>
+            <ul>
+                <li><strong>UDP Sender Thread (<code>udp_sender_thread</code>):</strong> Broadcasts the user's identity every 3 seconds using a project-specific header <code>0xDECAF</code>.</li>
+                <li><strong>UDP Listener Thread (<code>udp_listener_thread</code>):</strong> Listens for broadcast packets from nearby peers and updates the peer map.</li>
+                <li><strong>TCP Receiver Thread (<code>tcp_receiver_thread</code>):</strong> Waits for incoming file transfer requests and receives files.</li>
+                <li><strong>Main Thread:</strong> Handles user input, displays menu, and initiates file transfers.</li>
+            </ul>
+        </div>
 
-        <ul>
-            <li><strong>UDP Sender Thread</strong> — broadcasts presence every 3 seconds</li>
-            <li><strong>UDP Listener Thread</strong> — detects peers & updates online list</li>
-            <li><strong>TCP Receiver Thread</strong> — accepts incoming file transfers</li>
-            <li><strong>Main/UI Thread</strong> — handles menu, user input, and file sending</li>
-        </ul>
+        <div class="section">
+            <h2>Peer Discovery</h2>
+            <p>Peers broadcast messages containing their <code>user_name</code> and TCP port using UDP. Any received message starting with the identifier <code>0xDECAF</code> is recognized as a valid peer.</p>
+            <p>Discovered peers are stored in the global map <code>mp</code>, where each entry contains:</p>
+            <ul>
+                <li><strong>name</strong></li>
+                <li><strong>ip</strong></li>
+                <li><strong>port</strong></li>
+                <li><strong>last_seen</strong></li>
+            </ul>
+        </div>
 
-        <p>Peers are stored in an in-memory map along with:</p>
-        <ul>
-            <li>Name</li>
-            <li>IP Address</li>
-            <li>TCP Port</li>
-            <li>Last seen timestamp</li>
-        </ul>
-    </div>
+        <div class="section">
+            <h2>File Transfer</h2>
+            <p>File transfer uses TCP for reliable delivery. The sender establishes a TCP connection and sends file metadata (name, size) followed by the file data in chunks of 5000 bytes.</p>
+            <p>The receiver reconstructs the file using the function <code>handle_file_receive()</code>.</p>
+        </div>
 
-    <div class="section">
-        <h2>⚙ How Peer Discovery Works</h2>
-        <p>
-            Each device periodically sends a UDP broadcast packet formatted as:
-        </p>
-        <div class="code">0xDECAF&lt;username&gt;:&lt;tcp-port&gt;</div>
+        <div class="section">
+            <h2>Implementation Details</h2>
+            <ul>
+                <li><code>mp</code> — map storing discovered peers.</li>
+                <li><code>valid</code> — atomic boolean controlling thread shutdown.</li>
+                <li><code>user_name</code> — device name entered by user.</li>
+                <li>UDP message format: <code>0xDECAF&lt;user_name&gt;:&lt;port&gt;</code></li>
+                <li>File receive handled by <code>handle_file_receive()</code>.</li>
+            </ul>
+        </div>
 
-        <p>
-            All devices listening on UDP port <strong>50000</strong> extract:
-        </p>
-        <ul>
-            <li>Peer name</li>
-            <li>IP address (from sender socket)</li>
-            <li>Port number</li>
-        </ul>
+        <div class="section">
+            <h2>Application Workflow</h2>
+            <ol>
+                <li><strong>Startup:</strong> Threads begin execution: <code>udp_sender_thread</code>, <code>udp_listener_thread</code>, <code>tcp_receiver_thread</code>.</li>
+                <li><strong>Peer Discovery:</strong> Peers detect each other through UDP broadcast packets containing <code>user_name</code> and port.</li>
+                <li><strong>Peer List Building:</strong> <code>mp</code> stores and updates all available peers.</li>
+                <li><strong>User Interaction:</strong> Main thread provides options to list peers, send files, or quit.</li>
+                <li><strong>TCP Connection:</strong> Sender uses <code>send_file_to_peer()</code> to initiate a file transfer.</li>
+                <li><strong>File Transmission:</strong> Metadata and file bytes are transferred reliably.</li>
+                <li><strong>Saving:</strong> Receiver stores the file as <code>airdrop_&lt;filename&gt;</code>.</li>
+            </ol>
+        </div>
 
-        <p>Peers inactive for more than 10 seconds are automatically removed.</p>
-    </div>
+        <div class="section">
+            <h2>Technology Stack</h2>
+            <ul>
+                <li><strong>Language:</strong> C++</li>
+                <li><strong>Networking:</strong> BSD sockets (UDP + TCP)</li>
+                <li><strong>Threading:</strong> <code>std::thread</code></li>
+                <li><strong>Data Structures:</strong> <code>map</code>, <code>string</code>, custom <code>Peer</code> struct</li>
+                <li><strong>Platforms:</strong> Linux / Unix</li>
+            </ul>
+        </div>
 
-    <div class="section">
-        <h2>📤 File Transfer (TCP)</h2>
-        <p>
-            When sending a file, the system:
-        </p>
-        <ol>
-            <li>Extracts file name and size</li>
-            <li>Connects to peer via TCP</li>
-            <li>Sends metadata (all in network endian)</li>
-            <li>Sends file in 5000-byte chunks</li>
-        </ol>
+        <div class="section">
+            <h2>How to Run</h2>
+            <ol>
+                <li>Compile using:<br><code>g++ -o airdrop main.cpp -pthread -std=c++11</code></li>
+                <li>Ensure devices are on same network.</li>
+                <li>Run the executable on each device.</li>
+                <li>Use the menu to discover peers and send files.</li>
+            </ol>
+        </div>
 
-        <p>On receiving, the device writes it as <strong>airdrop_filename</strong>.</p>
-    </div>
+        <div class="section">
+            <h2>Detailed Implementation Overview</h2>
+            <h3>1. Global Data Structures</h3>
+            <ul>
+                <li><code>map&lt;string, Peer&gt; mp</code> stores peers as <code>"IP:port"</code>.</li>
+                <li><code>Peer</code> struct: <strong>name</strong>, <strong>ip</strong>, <strong>port</strong>, <strong>last_seen</strong>.</li>
+                <li><code>atomic&lt;bool&gt; valid</code> controls shutdown.</li>
+                <li><code>user_name</code> identifies current device.</li>
+            </ul>
 
-    <div class="section">
-        <h2>📟 Terminal Menu</h2>
-        <div class="code">
---- AirDrop Clone ---
-L : List peers  
-S : Send file  
-Q : Quit
+            <h3>2. UDP Sender Thread</h3>
+            <ul>
+                <li>Broadcasts message:<br><code>"0xDECAF" + user_name + ":" + to_string(port)</code></li>
+                <li>Sends every 3 seconds.</li>
+            </ul>
+
+            <h3>3. UDP Listener Thread</h3>
+            <ul>
+                <li>Listens on UDP port <strong>50000</strong>.</li>
+                <li>Validates prefix <code>0xDECAF</code>.</li>
+                <li>Updates peer map <code>mp</code>.</li>
+                <li>Removes peers unseen for &gt;10 seconds.</li>
+            </ul>
+
+            <h3>4. TCP Receiver Thread</h3>
+            <ul>
+                <li>Listens on provided port.</li>
+                <li>Accepts new connections and spawns handler thread.</li>
+            </ul>
+
+            <h3>5. File Receive Handler</h3>
+            <ul>
+                <li>Receives metadata + file data.</li>
+                <li>Saves file with prefix <code>airdrop_</code>.</li>
+                <li>Uses <code>ntohll()</code> for 64‑bit conversions.</li>
+            </ul>
+
+            <h3>6. Sending Files</h3>
+            <ul>
+                <li>User selects IP, port, and file path.</li>
+                <li>Function used: <code>send_file_to_peer(ip, port, path)</code>.</li>
+            </ul>
+
+            <h3>7. Main Thread & UI</h3>
+            <ul>
+                <li>Options: List peers, Send file, Quit.</li>
+                <li>Calls <code>list_peers()</code> and <code>send_file_ui()</code>.</li>
+            </ul>
         </div>
     </div>
 
-    <div class="section">
-        <h2>📘 Code Summary</h2>
-        <p>Major functions in the program:</p>
-
-        <ul>
-            <li><strong>udp_sender_thread()</strong> — broadcast presence</li>
-            <li><strong>udp_listener_thread()</strong> — detect peers</li>
-            <li><strong>tcp_receiver_thread()</strong> — accept incoming file</li>
-            <li><strong>handle_file_receive()</strong> — write received file</li>
-            <li><strong>send_file_to_peer()</strong> — send file over TCP</li>
-            <li><strong>list_peers()</strong> — remove offline peers</li>
-            <li><strong>send_file_ui()</strong> — user input</li>
-        </ul>
-
-    </div>
-
-    <div class="section">
-            </div>
-
-</div>
-
-<footer>
-    AirDrop Clone – Created in C++ | GitHub Pages
-</footer>
-
+    <footer>
+        <p>Network Programming Project • Airdrop Clone • C++ Implementation</p>
+    </footer>
 </body>
 </html>
